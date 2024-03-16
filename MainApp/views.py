@@ -1,7 +1,7 @@
 from django.shortcuts import redirect, render
 from django.core.exceptions import ObjectDoesNotExist
 from MainApp.models import Snippet
-from django.http import HttpResponseNotFound
+from django.http import Http404, HttpResponseNotFound
 from MainApp.forms import SnippetForm
 
 
@@ -34,7 +34,7 @@ def snippets_page(request):
     context = {
         "pagename": "Просмотр сниппетов",
         "snippets": snippets,
-        "type": "view"
+        "type": "view",
     }
     return render(request, "pages/view_snippets.html", context)
 
@@ -47,14 +47,39 @@ def snippet_detail(request, snippet_id):
     context = {
         "pagename": "Просмотр сниппета",
         "snippet": snippet,
+        "type": "view",
     }
     return render(request, "pages/snippet_detail.html", context)
+
+
+def snippet_edit(request, snippet_id):
+    try:
+        snippet = Snippet.objects.get(id=snippet_id)
+    except ObjectDoesNotExist:
+        return Http404
+    # Хотим получить страницу данных сниппета
+    if request.method == "GET":
+        context = {
+            "pagename": "Просмотр сниппета",
+            "snippet": snippet,
+            "type": "edit",
+        }
+        return render(request, "pages/snippet_detail.html", context)
+
+    # Хотим использовать данные из формы и сохранить изменения в БД
+    if request.method == "POST":
+        data_form = request.POST
+        snippet.name = data_form["name"]
+        snippet.code = data_form["code"]
+        snippet.creation_date = data_form["creation_date"]
+        snippet.save()
+        return redirect("snippets-list")
 
 
 def snippet_delete(request, snippet_id):
     snippet = Snippet.objects.get(id=snippet_id)
     snippet.delete()
-    return redirect('snippets-list')
+    return redirect("snippets-list")
 
 
 # def create_snippet(request):
