@@ -34,6 +34,7 @@ def snippets_page(request):
     context = {
         "pagename": "Просмотр сниппетов",
         "snippets": snippets,
+        "type": "view"
     }
     return render(request, "pages/view_snippets.html", context)
 
@@ -48,6 +49,12 @@ def snippet_detail(request, snippet_id):
         "snippet": snippet,
     }
     return render(request, "pages/snippet_detail.html", context)
+
+
+def snippet_delete(request, snippet_id):
+    snippet = Snippet.objects.get(id=snippet_id)
+    snippet.delete()
+    return redirect('snippets-list')
 
 
 # def create_snippet(request):
