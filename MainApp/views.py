@@ -26,7 +26,7 @@ def add_snippet_page(request):
         if form.is_valid():
             form.save()
             return redirect("snippets-list")
-        return render(request, "add_snippet.html", {"form": form})
+        return render(request, "pages/add_snippet.html", {"form": form})
 
 
 def snippets_page(request):
@@ -57,6 +57,15 @@ def snippet_edit(request, snippet_id):
         snippet = Snippet.objects.get(id=snippet_id)
     except ObjectDoesNotExist:
         return Http404
+
+    # Variant 1
+    # ==== Получение сниппета для редактирования с помощью SnippetForm ====
+    # if request.method == "GET":
+    #     form = SnippetForm(instance=snippet)
+    #     return render(request, "pages/add_snippet.html", {"form": form})
+    # =====================================================================
+
+    # Variant 2
     # Хотим получить страницу данных сниппета
     if request.method == "GET":
         context = {
@@ -71,7 +80,8 @@ def snippet_edit(request, snippet_id):
         data_form = request.POST
         snippet.name = data_form["name"]
         snippet.code = data_form["code"]
-        snippet.creation_date = data_form["creation_date"]
+        if (change_date := data_form.get("creation_date")):
+            snippet.creation_date = change_date
         snippet.save()
         return redirect("snippets-list")
 
