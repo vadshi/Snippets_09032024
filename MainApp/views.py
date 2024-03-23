@@ -106,8 +106,11 @@ def login(request):
         if user is not None:
             auth.login(request, user)
         else:
-            # Return error message
-            pass
+            context = {
+                "pagename": "PythonBin",
+                "errors": ["wrong username or password"],
+            }
+            return render(request, "pages/index.html", context)
     return redirect('home')
 
 
@@ -115,10 +118,3 @@ def logout(request):
     auth.logout(request)
     return redirect('home')
 
-# def create_snippet(request):
-#     if request.method == "POST":
-#         form = SnippetForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             return redirect("snippets-list")
-#         return render(request,'add_snippet.html', {'form': form})
