@@ -68,6 +68,7 @@ def snippet_detail(request, snippet_id):
     return render(request, "pages/snippet_detail.html", context)
 
 
+@login_required
 def snippet_edit(request, snippet_id):
     try:
         snippet = Snippet.objects.get(id=snippet_id)
@@ -98,10 +99,12 @@ def snippet_edit(request, snippet_id):
         snippet.code = data_form["code"]
         if change_date := data_form.get("creation_date"):
             snippet.creation_date = change_date
+        snippet.public = data_form.get("public", False)
         snippet.save()
         return redirect("snippets-list")
 
 
+@login_required
 def snippet_delete(request, snippet_id):
     snippet = Snippet.objects.get(id=snippet_id)
     snippet.delete()
