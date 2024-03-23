@@ -22,3 +22,6 @@ class Snippet(models.Model):
 
     def __repr__(self) -> str:
         return f'Snippet({self.name}, {self.lang})'
+    
+    def __str__(self) -> str:
+        return f'Snippet({self.name}, {self.lang})'
