@@ -11,7 +11,18 @@ def index_page(request):
     context = {"pagename": "PythonBin"}
     return render(request, "pages/index.html", context)
 
-@login_required(login_url='home')
+
+@login_required
+def my_snippets(request):
+    snippets = Snippet.objects.filter(user=request.user)
+    context = {
+        "pagename": "Мои сниппеты",
+        "snippets": snippets,
+               }
+    return render(request, "pages/view_snippets.html", context)
+
+
+@login_required(login_url="home")
 def add_snippet_page(request):
     # Создаем пустую форму при запросе методом GET
     if request.method == "GET":
@@ -85,7 +96,7 @@ def snippet_edit(request, snippet_id):
         data_form = request.POST
         snippet.name = data_form["name"]
         snippet.code = data_form["code"]
-        if (change_date := data_form.get("creation_date")):
+        if change_date := data_form.get("creation_date"):
             snippet.creation_date = change_date
         snippet.save()
         return redirect("snippets-list")
@@ -98,7 +109,7 @@ def snippet_delete(request, snippet_id):
 
 
 def login(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
         # print("username =", username)
@@ -112,10 +123,9 @@ def login(request):
                 "errors": ["wrong username or password"],
             }
             return render(request, "pages/index.html", context)
-    return redirect('home')
+    return redirect("home")
 
 
 def logout(request):
     auth.logout(request)
-    return redirect('home')
-
+    return redirect("home")
