@@ -3,7 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from MainApp.models import Snippet
 from django.http import Http404, HttpResponseNotFound
 from MainApp.forms import SnippetForm, UserRegistrationForm
-from django.contrib import auth
+from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required
 
 
@@ -18,6 +18,7 @@ def my_snippets(request):
     context = {
         "pagename": "Мои сниппеты",
         "snippets": snippets,
+        "count": snippets.count()
     }
     return render(request, "pages/view_snippets.html", context)
 
@@ -41,6 +42,7 @@ def add_snippet_page(request):
             if request.user.is_authenticated:
                 snippet.user = request.user
                 snippet.save()
+                messages.success(request, "New snippet has saved.")
             return redirect("snippets-list")
         return render(request, "pages/add_snippet.html", {"form": form})
 
@@ -51,6 +53,7 @@ def snippets_page(request):
         "pagename": "Просмотр сниппетов",
         "snippets": snippets,
         "type": "view",
+        "count": snippets.count()
     }
     return render(request, "pages/view_snippets.html", context)
 
@@ -101,6 +104,7 @@ def snippet_edit(request, snippet_id):
             snippet.creation_date = change_date
         snippet.public = data_form.get("public", False)
         snippet.save()
+        messages.success(request, "Snippet has changed.")
         return redirect("snippets-list")
 
 
@@ -133,11 +137,10 @@ def login(request):
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
-        # print("username =", username)
-        # print("password =", password)
         user = auth.authenticate(request, username=username, password=password)
         if user is not None:
             auth.login(request, user)
+            messages.success(request, f'{username} logged in')
         else:
             context = {
                 "pagename": "PythonBin",
